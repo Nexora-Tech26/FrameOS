@@ -14,7 +14,7 @@ concurrency:
 jobs:
   iso:
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 120
     env:
       ISO: ubuntu-26.10-desktop-amd64.iso
       UPSTREAM: https://releases.ubuntu.com/26.10
@@ -23,7 +23,7 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends xorriso ubuntu-keyring gnupg
+          sudo apt-get install -y --no-install-recommends xorriso ubuntu-keyring gnupg squashfs-tools
           df -h
       - name: Verify upstream checksum manifest
         run: |
@@ -52,12 +52,17 @@ jobs:
         with:
           path: .build-cache/${{ env.ISO }}
           key: frameos-base-amd64-${{ hashFiles('.build-cache/upstream.sha256') }}
-      - name: Build FrameOS
-        run: bash build/build-iso.sh
+      - name: Restore optimized layers
+        uses: actions/cache@v4
+        with:
+          path: .build-cache/lean-layers
+          key: frameos-lean-${{ hashFiles('.build-cache/upstream.sha256', 'build/lean-iso.sh') }}
+      - name: Build lean preview
+        run: bash build/lean-iso.sh .build-cache/$ISO dist/FrameOS-1.0-part2-lean-preview-amd64.iso
       - name: Upload ISO and validation reports
         uses: actions/upload-artifact@v4
         with:
-          name: FrameOS-1.0-part1-amd64
+          name: FrameOS-1.0-part2-lean-preview-amd64
           path: dist/
           compression-level: 0
           retention-days: 7
