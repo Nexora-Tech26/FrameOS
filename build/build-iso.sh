@@ -9,6 +9,7 @@ trap 'rm -rf "$work"' EXIT
 test -s "$base"
 test ! -e "$out" || { echo "Output already exists: $out" >&2; exit 1; }
 xorriso -abort_on FAILURE -osirrox on -indev "$base" -extract /boot/grub/grub.cfg "$work/grub.cfg"
+chmod u+w "$work/grub.cfg"
 # Preserve kernel arguments, paths, installer and signed boot components.
 python3 - "$work/grub.cfg" <<'PY'
 import pathlib, sys
@@ -23,6 +24,7 @@ PY
 printf 'FrameOS 1.0\nDevelopment build: Part 1\nBase: Ubuntu 26.10 AMD64\n' > "$work/FRAMEOS.txt"
 # Update media checksum entries for modified boot configuration.
 xorriso -abort_on FAILURE -osirrox on -indev "$base" -extract /md5sum.txt "$work/md5sum.txt"
+chmod u+w "$work/md5sum.txt"
 python3 - "$work" <<'PY'
 import hashlib, pathlib, sys
 p=pathlib.Path(sys.argv[1])
@@ -39,7 +41,6 @@ xorriso -abort_on FAILURE -indev "$base" -outdev "$out" \
   -map "$work/FRAMEOS.txt" /FRAMEOS.txt \
   -map "$work/md5sum.txt" /md5sum.txt \
   -boot_image any replay -commit -end
-xorriso -indev "$out" -report_el_torito plain | tee "$(dirname "$out")/boot-report.txt"
 # xorriso report output may go to stderr; capture separately for validation.
 xorriso -indev "$out" -report_el_torito plain > "$work/boot.txt" 2>&1
 cat "$work/boot.txt" > "$(dirname "$out")/boot-report.txt"
