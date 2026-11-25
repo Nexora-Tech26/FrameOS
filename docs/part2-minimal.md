@@ -1,0 +1,2 @@
+# Part 2 minimal live preview
+Build starts with debootstrap, not Ubuntu Desktop ISO. Explicit package list, no recommends, build-time negative pins for unwanted Ubuntu desktop components. Firefox uses Mozilla signed APT repository. Fast ZSTD filesystem packing and cache keyed by manifest and builder. Native GNOME remains until FrameUI is implemented. This is a live ISO preview; installer and Secure Boot are not yet implemented or validated on the new base. Original remaster script remains available as a fallback. Frame Welcome remains scheduled for Part 14.

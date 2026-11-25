@@ -1,6 +1,11 @@
 name: Build
 on:
   workflow_dispatch:
+    inputs:
+      refresh:
+        description: Rebuild package layer from scratch
+        type: boolean
+        default: false
   push:
     branches: [main]
     paths:
@@ -14,50 +19,26 @@ concurrency:
 jobs:
   iso:
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
-    env:
-      ISO: ubuntu-26.10-desktop-amd64.iso
-      UPSTREAM: https://releases.ubuntu.com/26.10
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - name: Install build tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends xorriso ubuntu-keyring gnupg
-          df -h
-      - name: Verify upstream checksum manifest
-        run: |
-          mkdir -p .build-cache
-          curl -fsSL --retry 3 "$UPSTREAM/SHA256SUMS" -o /tmp/SHA256SUMS
-          curl -fsSL --retry 3 "$UPSTREAM/SHA256SUMS.gpg" -o /tmp/SHA256SUMS.gpg
-          gpgv --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg /tmp/SHA256SUMS.gpg /tmp/SHA256SUMS
-          grep -E "[ *]$ISO$" /tmp/SHA256SUMS > .build-cache/upstream.sha256
-      - name: Restore immutable Ubuntu base
-        id: cache
-        uses: actions/cache/restore@v4
+          sudo apt-get install -y --no-install-recommends debootstrap ubuntu-keyring gnupg squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin mtools
+          sudo ln -sf gutsy /usr/share/debootstrap/scripts/stonking
+      - name: Restore built system layer
+        if: inputs.refresh != true
+        uses: actions/cache@v4
         with:
-          path: .build-cache/${{ env.ISO }}
-          key: frameos-base-amd64-${{ hashFiles('.build-cache/upstream.sha256') }}
-      - name: Download and validate base
-        run: |
-          cd .build-cache
-          if ! sha256sum -c upstream.sha256; then
-            rm -f "$ISO"
-            curl -fL --retry 4 "$UPSTREAM/$ISO" -o "$ISO"
-            sha256sum -c upstream.sha256
-          fi
-      - name: Save validated base for next build
-        if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: .build-cache/${{ env.ISO }}
-          key: frameos-base-amd64-${{ hashFiles('.build-cache/upstream.sha256') }}
-      - name: Build fast development ISO
-        run: bash build/build-iso.sh .build-cache/$ISO dist/FrameOS-1.0-part2-fast-base-amd64.iso
+          path: .build-cache/minimal
+          key: frameos-minimal-stonking-v1-${{ hashFiles('build/minimal-iso.sh', 'build/part2-packages.txt') }}
+      - name: Build minimal FrameOS live ISO
+        run: bash build/minimal-iso.sh
       - name: Upload ISO and validation reports
         uses: actions/upload-artifact@v4
         with:
-          name: FrameOS-1.0-part2-fast-base-amd64
+          name: FrameOS-1.0-part2-minimal-live-amd64
           path: dist/
           compression-level: 0
           retention-days: 7
