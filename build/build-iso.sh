@@ -21,7 +21,7 @@ if not count:
     raise SystemExit("Upstream GRUB menu layout changed; inspect before proceeding")
 p.write_text(text)
 PY
-printf 'FrameOS 1.0\nDevelopment build: Part 1\nBase: Ubuntu 26.10 AMD64\n' > "$work/FRAMEOS.txt"
+printf 'FrameOS 1.0\nDevelopment build: Part 2 fast base (package integration pending)\nBase: Ubuntu 26.10 AMD64\n' > "$work/FRAMEOS.txt"
 # Update media checksum entries for modified boot configuration.
 xorriso -abort_on FAILURE -osirrox on -indev "$base" -extract /md5sum.txt "$work/md5sum.txt"
 chmod u+w "$work/md5sum.txt"

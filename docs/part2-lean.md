@@ -1,9 +1,12 @@
-# Part 2 lean preview
+# FrameOS desktop migration
 
-This is an incremental, experimental remaster of the validated Ubuntu 26.10 ISO. It is not a completed Part 2.
+Fast development builds reuse the verified upstream ISO without recompressing the root filesystem. This build is a base preview, not a completed Part 2.
 
-The build recompresses supported main filesystem layers with XZ, removes disposable caches, retains original boot metadata, and records actual sizes. Installer, signed snap seed, kernel and language layers are deliberately preserved. Cached repacked layers are reusable when upstream checksums and the script match.
+Package migration plan:
+- Remove Ubuntu Dock and Tiling Assistant when configuring the Frame session.
+- Replace Ubuntu App Center with GNOME Software and move Thunderbird to the optional Business Pack.
+- Replace Yaru, Ubuntu wallpapers and branding once tested Frame GTK, Frame Glass, Fluent and Bibata are ready (Part 3/4/6). Keep fallback assets until replacements work.
+- Preserve GNOME Shell, its native Quick Settings backend, installer, kernel, firmware, security updates, Firefox and LibreOffice.
+- Implement native Frame Welcome and optional App Packs in Part 14.
 
-Pending: dependency-aware package installation and removal in both the target and live layers, including Thunderbird (optional Business Pack), Ubuntu Dock, Tiling Assistant, Ubuntu App Center, redundant apps and languages. Do not remove signed snap seed files without rebuilding their metadata correctly. Preserve Firefox, the full LibreOffice suite, GNOME, firmware and the installer. Retain Yaru as fallback until Frame GTK is available.
-
-Inspect size-report.txt and upstream-layout.txt from the artifact. Successful ISO creation does not prove boot or installation compatibility.
+Do not delete snap seeds, filesystem layers or package-owned assets independently of package metadata. Actual package removal and Part 2 package integration remain pending. Future modified layers require a SquashFS encoding step; use fast compression and cache them rather than repacking unchanged layers.
