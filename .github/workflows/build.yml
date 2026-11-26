@@ -34,12 +34,15 @@ jobs:
           path: .build-cache/minimal
           key: frameos-minimal-stonking-v2-${{ hashFiles('build/minimal-iso.sh', 'build/part2-packages.txt', 'build/configure-live.sh', 'build/frameos-wallpaper.svg') }}
       - name: Restore FrameUI layer
+        if: inputs.refresh != true
         uses: actions/cache@v4
         with:
           path: .build-cache/frameui
-          key: frameui-v1-${{ hashFiles('build/part3-ui.sh', 'build/frame-gtk.css', 'build/frame-glass.css', 'build/minimal-iso.sh', 'build/part2-packages.txt', 'build/configure-live.sh', 'build/frameos-wallpaper.svg') }}
+          key: frameui-v2-${{ hashFiles('build/part3-ui.sh', 'build/frame-gtk.css', 'build/frame-glass.css', 'build/minimal-iso.sh', 'build/part2-packages.txt', 'build/configure-live.sh', 'build/frameos-wallpaper.svg') }}
       - name: Build FrameOS Part 3
-        run: bash build/part3-ui.sh
+        run: |
+          bash -n build/part3-ui.sh
+          bash build/part3-ui.sh
       - name: Upload ISO and validation reports
         uses: actions/upload-artifact@v4
         with:
