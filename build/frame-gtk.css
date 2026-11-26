@@ -1,0 +1,8 @@
+/* FrameUI: restrained rounded controls, dark navigation surfaces. */
+button { border-radius: 14px; min-height: 30px; padding: 5px 12px; }
+button.flat, button.image-button { border-radius: 12px; }
+entry, searchentry { border-radius: 12px; min-height: 34px; }
+.sidebar, placessidebar, navigation-sidebar { background-color: #24262b; color: #e6e8ed; }
+.sidebar row, placessidebar row, navigation-sidebar row { border-radius: 12px; margin: 3px 8px; padding: 6px 8px; min-height: 32px; }
+.sidebar row:selected, placessidebar row:selected, navigation-sidebar row:selected { background-color: #424650; color: #ffffff; }
+headerbar { border-radius: 14px 14px 0 0; }

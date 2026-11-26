@@ -1,0 +1,6 @@
+/* Frame Glass prototype. Use native Shell theme as parent when activated. */
+#panel { background-color: rgba(32,34,40,0.88); }
+.popup-menu-content { border-radius: 20px; padding: 10px; }
+.popup-menu-item { border-radius: 12px; padding: 8px 12px; }
+.calendar { border-radius: 16px; }
+.message { border-radius: 14px; }
