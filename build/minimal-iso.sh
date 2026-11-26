@@ -70,6 +70,10 @@ EOF
   inroot locale-gen
   inroot update-locale LANG=en_US.UTF-8
   bash build/configure-live.sh "$root"
+  # Ensure the live display manager has the native GNOME session available.
+  test -s "$root/usr/share/wayland-sessions/gnome.desktop" || test -s "$root/usr/share/wayland-sessions/gnome-wayland.desktop" || { ls -la "$root/usr/share/wayland-sessions"; exit 1; }
+  sudo mkdir -p "$root/etc/systemd/system/gdm.service.d"
+  printf '[Service]\nRestart=on-failure\nRestartSec=3s\n' | sudo tee "$root/etc/systemd/system/gdm.service.d/90-frameos-recovery.conf" >/dev/null
   printf 'FrameOS\n' | sudo tee "$root/etc/hostname"
   # Display branding configured by configure-live.sh.
   sudo rm -f "$root/usr/sbin/policy-rc.d" "$root/etc/apt/preferences.d/frameos-build"
@@ -106,11 +110,11 @@ cat > "$iso/boot/grub/grub.cfg" <<'EOF'
 set default=0
 set timeout=5
 menuentry "Try FrameOS 1.0" {
-    linux /casper/vmlinuz boot=casper username=frameos hostname=frameos quiet splash systemd.show_status=auto ---
+    linux /casper/vmlinuz boot=casper username=frameos hostname=frameos ---
     initrd /casper/initrd
 }
-menuentry "Try FrameOS (safe graphics)" {
-    linux /casper/vmlinuz boot=casper username=frameos hostname=frameos nomodeset ---
+menuentry "FrameOS recovery (text console)" {
+    linux /casper/vmlinuz boot=casper username=frameos hostname=frameos nomodeset systemd.unit=multi-user.target ---
     initrd /casper/initrd
 }
 EOF
