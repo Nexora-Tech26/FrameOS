@@ -32,7 +32,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .build-cache/minimal
-          key: frameos-minimal-stonking-v1-${{ hashFiles('build/minimal-iso.sh', 'build/part2-packages.txt') }}
+          key: frameos-minimal-stonking-v2-${{ hashFiles('build/minimal-iso.sh', 'build/part2-packages.txt', 'build/configure-live.sh', 'build/frameos-wallpaper.svg') }}
       - name: Build minimal FrameOS live ISO
         run: bash build/minimal-iso.sh
       - name: Upload ISO and validation reports

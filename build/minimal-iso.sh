@@ -69,11 +69,9 @@ EOF
   sudo sed -i 's/^# *en_US.UTF-8/en_US.UTF-8/;s/^# *pl_PL.UTF-8/pl_PL.UTF-8/' "$root/etc/locale.gen"
   inroot locale-gen
   inroot update-locale LANG=en_US.UTF-8
-  inroot systemctl enable NetworkManager gdm3
-  inroot systemctl set-default graphical.target
+  bash build/configure-live.sh "$root"
   printf 'FrameOS\n' | sudo tee "$root/etc/hostname"
-  # Keep upstream os-release identifiers for package compatibility.
-  printf 'FrameOS 1.0 development preview\n' | sudo tee "$root/etc/issue"
+  # Display branding configured by configure-live.sh.
   sudo rm -f "$root/usr/sbin/policy-rc.d" "$root/etc/apt/preferences.d/frameos-build"
   inroot update-initramfs -u -k all
   kernel=$(sudo find "$root/boot" -maxdepth 1 -name 'vmlinuz-*' | sort -V | tail -1)
@@ -96,6 +94,7 @@ EOF
   sudo mksquashfs "$root" "$cache/filesystem.squashfs.tmp" -noappend -comp zstd -Xcompression-level 3 -b 256K -processors "$(nproc)" -no-progress
   sudo mv "$cache/filesystem.squashfs.tmp" "$cache/filesystem.squashfs"
   sudo chown -R "$(id -u):$(id -g)" "$cache"
+  cp "$dist/desktop-applications.txt" "$cache/desktop-applications.txt"
 fi
 mkdir -p "$iso/casper" "$iso/boot/grub" "$iso/.disk"
 for f in filesystem.squashfs filesystem.manifest filesystem.size vmlinuz initrd; do
@@ -107,7 +106,7 @@ cat > "$iso/boot/grub/grub.cfg" <<'EOF'
 set default=0
 set timeout=5
 menuentry "Try FrameOS 1.0" {
-    linux /casper/vmlinuz boot=casper username=frameos hostname=frameos quiet splash ---
+    linux /casper/vmlinuz boot=casper username=frameos hostname=frameos quiet splash systemd.show_status=auto ---
     initrd /casper/initrd
 }
 menuentry "Try FrameOS (safe graphics)" {
@@ -121,5 +120,6 @@ grub-mkrescue -o "$out" "$iso" -- -volid FRAMEOS_1_0
 xorriso -indev "$out" -report_el_torito plain > "$dist/boot-report.txt" 2>&1
 grep -Eq 'El Torito boot img.*UEFI' "$dist/boot-report.txt"
 cp "$cache/filesystem.manifest" "$dist/package-manifest.txt"
+if [[ -s "$cache/desktop-applications.txt" ]]; then cp "$cache/desktop-applications.txt" "$dist/desktop-applications.txt"; fi
 stat -c '%s bytes' "$out" > "$dist/size-report.txt"
 (cd "$dist" && sha256sum "$(basename "$out")" > SHA256SUMS)

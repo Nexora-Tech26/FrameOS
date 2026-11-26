@@ -89,3 +89,19 @@ usbutils
 cups
 avahi-daemon
 apparmor
+
+# Runtime integration required by the minimal live desktop
+systemd-resolved
+netplan.io
+libnss-resolve
+xdg-desktop-portal-gtk
+gnome-keyring
+libpam-gnome-keyring
+xdg-user-dirs-gtk
+network-manager-gnome
+iputils-ping
+iproute2
+open-vm-tools-desktop
+pipewire-pulse
+libspa-0.2-bluetooth
+gnome-backgrounds
