@@ -36,7 +36,7 @@ EOF
   # Prevent Ubuntu-specific desktop extensions, metapackages and themes from entering the base.
   sudo mkdir -p "$root/etc/apt/preferences.d"
   sudo tee "$root/etc/apt/preferences.d/frameos-build" >/dev/null <<'EOF'
-Package: ubuntu-desktop ubuntu-desktop-minimal ubuntu-session ubuntu-settings ubuntu-dock gnome-shell-extension-ubuntu-dock gnome-shell-extension-ubuntu-tiling-assistant yaru-theme-* ubuntu-wallpapers* thunderbird ubuntu-welcome
+Package: ubuntu-desktop ubuntu-desktop-minimal ubuntu-session ubuntu-settings ubuntu-dock gnome-shell-extension-ubuntu-dock gnome-shell-extension-ubuntu-tiling-assistant yaru-theme-* thunderbird ubuntu-welcome
 Pin: version *
 Pin-Priority: -1
 EOF
@@ -52,6 +52,8 @@ EOF
     done
     if [[ "$found" != true ]]; then echo "Required package unavailable: $line" >&2; exit 1; fi
   done < build/part2-packages.txt
+  # Ubuntu GNOME Shell requires ubuntu-wallpapers; keep that dependency until FrameUI replacement.
+  inroot apt-get -s install --no-install-recommends "${packages[@]}" > /tmp/frameos-apt-plan.txt || { cat /tmp/frameos-apt-plan.txt; inroot apt-get -s -o Debug::pkgProblemResolver=yes install --no-install-recommends "${packages[@]}" || true; exit 100; }
   inroot apt-get install -y --no-install-recommends "${packages[@]}"
   # Firefox is distributed by Mozilla's signed APT repository, not the Ubuntu Snap transition.
   sudo mkdir -p "$root/etc/apt/keyrings"
