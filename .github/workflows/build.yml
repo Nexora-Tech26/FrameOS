@@ -44,16 +44,22 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .build-cache/desktop
-          key: frameos-desktop-v2-${{ hashFiles('build/**') }}
-      - name: Build FrameOS Part 5
+          key: frameos-desktop-v2-${{ hashFiles('build/part5-integration.sh', 'build/install-extensions.py', 'build/frame-glass.css', 'build/frame-gtk.css', 'build/part3-ui.sh', 'build/minimal-iso.sh', 'build/part2-packages.txt', 'build/configure-live.sh', 'build/frameos-wallpaper.svg') }}
+      - name: Restore installer layer
+        if: inputs.refresh != true
+        uses: actions/cache@v4
+        with:
+          path: .build-cache/installer
+          key: frameos-installer-v1-${{ hashFiles('build/**') }}
+      - name: Build FrameOS Part 6
         run: |
-          bash -n build/part5-integration.sh
-          python3 -m py_compile build/install-extensions.py
-          bash build/part5-integration.sh
+          bash -n build/part6-installer.sh
+          bash -n build/launch-installer.sh
+          bash build/part6-installer.sh
       - name: Upload ISO and validation reports
         uses: actions/upload-artifact@v4
         with:
-          name: FrameOS-1.0-part5-live-amd64
+          name: FrameOS-1.0-part6-installer-preview-amd64
           path: dist/
           compression-level: 0
           retention-days: 7

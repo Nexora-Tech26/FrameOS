@@ -1,0 +1,30 @@
+componentName: frameos
+welcomeStyleCalamares: false
+welcomeExpandingLogo: true
+windowExpanding: normal
+windowSize: 980px,620px
+windowPlacement: center
+sidebar: widget
+navigation: widget
+strings:
+  productName: FrameOS
+  shortProductName: FrameOS
+  version: "1.0"
+  shortVersion: "1.0"
+  versionedName: FrameOS 1.0
+  shortVersionedName: FrameOS 1.0
+  bootloaderEntryName: FrameOS
+  productUrl: https://github.com/Nexora-Tech26/FrameOS
+  supportUrl: https://github.com/Nexora-Tech26/FrameOS/issues
+  knownIssuesUrl: https://github.com/Nexora-Tech26/FrameOS/issues
+images:
+  productIcon: logo.svg
+  productLogo: logo.svg
+  productWelcome: logo.svg
+style:
+  SidebarBackground: "#24262b"
+  SidebarText: "#e6e8ed"
+  SidebarTextCurrent: "#ffffff"
+  SidebarBackgroundCurrent: "#465064"
+slideshow: show.qml
+slideshowAPI: 2
