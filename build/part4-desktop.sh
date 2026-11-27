@@ -27,6 +27,7 @@ if [[ ! -s "$cache/filesystem.squashfs" ]]; then
   sudo cp -a "$gtk/." "$root/etc/skel/.config/gtk-4.0/"
   sudo tee -a "$root/etc/skel/.config/gtk-4.0/gtk.css" < build/frame-gtk.css >/dev/null
   sudo python3 build/install-extensions.py "$root" "$dist/extensions-report.json"
+  sudo chown "$(id -u):$(id -g)" "$dist/extensions-report.json"
   sudo chroot "$root" dconf update
   # User can bypass extensions without disabling the graphical desktop.
   sudo install -d "$root/usr/local/bin" "$root/etc/xdg/autostart"
@@ -78,6 +79,6 @@ grub-mkrescue -o "$out" "$iso" -- -volid FRAMEOS_1_0
 xorriso -indev "$out" -report_el_torito plain > "$dist/boot-report.txt" 2>&1
 grep -Eq 'El Torito boot img.*UEFI' "$dist/boot-report.txt"
 cp "$base/filesystem.manifest" "$dist/package-manifest.txt"
-cp "$cache/extensions-report.json" "$dist/"
+install -m 0644 "$cache/extensions-report.json" "$dist/extensions-report.json"
 stat -c '%s bytes' "$out" > "$dist/size-report.txt"
 (cd "$dist" && sha256sum "$(basename "$out")" > SHA256SUMS)

@@ -5,6 +5,7 @@ version=subprocess.check_output(['chroot',str(root),'gnome-shell','--version'],t
 extensions=[
 ('dash-to-dock@micxgx.gmail.com','Dash to Dock',True),
 ('openbar@neuromorph','Open Bar',True),
+('kiwimenu@kemma','Kiwi Menu',True),
 ('blur-my-shell@aunetx','Blur My Shell',True),
 ('desktop-cube@schneegans.github.com','Desktop Cube',True),
 ('clipboard-indicator@tudmotu.com','Clipboard Indicator',True),
@@ -25,12 +26,14 @@ for uuid,name,active in extensions:
     target=dest/uuid
     try:
         info=json.loads(get('https://extensions.gnome.org/extension-info/?'+urllib.parse.urlencode({'uuid':uuid,'shell_version':version})))
-        link=info.get('download_url')
+        release=info.get('shell_version_map',{}).get(version)
+        link=('/download-extension/'+urllib.parse.quote(uuid,safe='@.')+'.shell-extension.zip?version_tag='+str(release['pk'])) if release and release.get('pk') else info.get('download_url')
         if not link: raise ValueError('no compatible release')
         blob=get(urllib.parse.urljoin('https://extensions.gnome.org/',link))
         with zipfile.ZipFile(io.BytesIO(blob)) as z:
             meta=json.loads(z.read('metadata.json'))
-            if meta['uuid']!=uuid or version not in [str(v).split('.')[0] for v in meta['shell-version']]: raise ValueError('metadata mismatch')
+            if meta['uuid']!=uuid: raise ValueError(f"UUID mismatch: {meta['uuid']}")
+            if version not in [str(v).split('.')[0] for v in meta['shell-version']]: raise ValueError(f"GNOME {version} unsupported by downloaded release; supports {meta['shell-version']}")
             for item in z.infolist():
                 path=pathlib.PurePosixPath(item.filename)
                 if path.is_absolute() or '..' in path.parts or (item.external_attr>>16)&0o170000==0o120000: raise ValueError('unsafe archive')
