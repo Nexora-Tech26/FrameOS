@@ -9,7 +9,7 @@ extensions=[
 ('blur-my-shell@aunetx','Blur My Shell',False),
 ('desktop-cube@schneegans.github.com','Desktop Cube',False),
 ('clipboard-indicator@tudmotu.com','Clipboard Indicator',True),
-('user-theme@gnome-shell-extensions.gcampax.github.com','User Themes',True),
+('user-theme@gnome-shell-extensions.gcampax.github.com','User Themes',False),
 ('just-perfection-desktop@just-perfection','Just Perfection',False),
 ('gsconnect@andyholmes.github.io','GSConnect',False),
 ('rounded-window-corners@fxgn','Rounded Window Corners Reborn',False),
@@ -51,12 +51,8 @@ settings={
 'dash-to-dock@micxgx.gmail.com':{'dock-position':"'BOTTOM'",'show-apps-at-top':'false','show-show-apps-button':'true','extend-height':'false','dash-max-icon-size':'40','dock-fixed':'true','autohide':'false','intellihide':'false','custom-theme-shrink':'true','show-trash':'false','show-mounts':'false'},
 'openbar@neuromorph':{'bartype':"'Trilands'"},
 'user-theme@gnome-shell-extensions.gcampax.github.com':{'name':"'Frame-Glass'"}}
-if version == '51':
-    target=dest/'frame-integration@frameos'
-    shutil.copytree(pathlib.Path(__file__).parent/'frame-integration',target,dirs_exist_ok=True)
-    enabled.append('frame-integration@frameos')
-    results.append({'name':'Frame Integration','uuid':'frame-integration@frameos','status':'enabled by default'})
-lines=['[org/gnome/shell]','disable-user-extensions=false','enabled-extensions='+repr(enabled),'']
+# Native GNOME panel, clock, notification center and Quick Settings remain untouched.
+lines=['[org/gnome/shell]','disable-user-extensions=false','enabled-extensions='+repr(enabled),'','[org/gnome/desktop/interface]','enable-animations=false','']
 for uuid,values in settings.items():
     if uuid not in enabled: continue
     for f in (dest/uuid/'schemas').glob('*.xml'):
@@ -67,7 +63,7 @@ for uuid,values in settings.items():
             selected={k:v for k,v in values.items() if k in keys}
             if selected: lines+=['['+path.strip('/')+']']+[k+'='+v for k,v in selected.items()]+['']
 (root/'etc/dconf/db/local.d/20-frame-desktop').write_text('\n'.join(lines))
-report.write_text(json.dumps({'gnome':version,'extensions':results},indent=2))
+report.write_text(json.dumps({'gnome':version,'extensions':results,'panel':'Open Bar Trilands' if 'openbar@neuromorph' in enabled else 'Native GNOME panel','animations':False},indent=2))
 print(report.read_text())
 # Required desktop controls must not silently disappear.
 if 'dash-to-dock@micxgx.gmail.com' not in enabled: raise SystemExit('No compatible Dash to Dock release')
