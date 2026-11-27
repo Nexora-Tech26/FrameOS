@@ -1,0 +1,3 @@
+.frame-panel { background-color: transparent !important; }
+.frame-island { background-color: rgba(32,34,40,0.96); border-radius: 14px; margin: 3px 8px; padding: 0 6px; }
+.frame-island .panel-button { border-radius: 10px; }

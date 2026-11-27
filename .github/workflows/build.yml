@@ -44,16 +44,16 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .build-cache/desktop
-          key: frameos-desktop-v1-${{ hashFiles('build/**') }}
-      - name: Build FrameOS Part 4
+          key: frameos-desktop-v2-${{ hashFiles('build/**') }}
+      - name: Build FrameOS Part 5
         run: |
-          bash -n build/part4-desktop.sh
+          bash -n build/part5-integration.sh
           python3 -m py_compile build/install-extensions.py
-          bash build/part4-desktop.sh
+          bash build/part5-integration.sh
       - name: Upload ISO and validation reports
         uses: actions/upload-artifact@v4
         with:
-          name: FrameOS-1.0-part4-live-amd64
+          name: FrameOS-1.0-part5-live-amd64
           path: dist/
           compression-level: 0
           retention-days: 7

@@ -1,0 +1,9 @@
+{
+  "uuid": "frame-integration@frameos",
+  "name": "Frame Integration",
+  "description": "FrameOS panel, active app, contextual fallback menus and lightweight controls",
+  "shell-version": [
+    "51"
+  ],
+  "version": 1
+}
