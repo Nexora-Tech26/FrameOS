@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 import os
+import sys
 import subprocess
 import gi
 gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk, Gio, GLib
 
 if "boot=casper" not in open("/proc/cmdline").read().split():
     raise SystemExit(0)
@@ -58,8 +59,18 @@ class Welcome(Gtk.Application):
         window.set_child(box)
         window.present()
     def choose(self, button, window, install):
-        if install:
-            subprocess.Popen(["/usr/local/bin/frameos-install"])
-        window.close()
+        if not install:
+            window.close()
+            return
+        button.set_sensitive(False)
+        process = subprocess.Popen(["/usr/local/bin/frameos-install"])
+        def check():
+            if process.poll() is None:
+                return True
+            button.set_sensitive(True)
+            if process.returncode == 0:
+                window.close()
+            return False
+        GLib.timeout_add(500, check)
 
-Welcome().run(None)
+Welcome().run(sys.argv)

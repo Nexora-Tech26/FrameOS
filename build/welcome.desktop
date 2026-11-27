@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Try or Install FrameOS
+Name[pl]=Wypróbuj lub zainstaluj FrameOS
+Comment=Open the live welcome screen
+Exec=/usr/local/bin/frameos-welcome
+Icon=frameos-installer
+Terminal=false
+Categories=System;
+StartupNotify=true

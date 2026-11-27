@@ -33,7 +33,10 @@ if [[ ! -s "$cache/filesystem.squashfs" || ! -s "$cache/initrd" || ! -s "$cache/
   inroot apt-get install -y --no-install-recommends grub-pc-bin grub-efi-amd64-bin efibootmgr grub2-common cryptsetup-initramfs os-prober dosfstools e2fsprogs parted btrfs-progs
   sudo install -d "$root/etc/default/grub.d"
   printf 'GRUB_DISTRIBUTOR="FrameOS"\nGRUB_TIMEOUT=5\nGRUB_DISABLE_OS_PROBER=false\n' | sudo tee "$root/etc/default/grub.d/99-frameos.cfg" >/dev/null
-  inroot apt-get install -y calamares policykit-1-gnome || inroot apt-get install -y calamares
+  inroot apt-get install -y calamares zenity xauth mokutil sudo
+  inroot test -x /usr/bin/calamares
+  inroot /usr/bin/python3 -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk'
+  sudo install -d "$root/etc/calamares"
   sudo cp -a build/installer/. "$root/etc/calamares/"
   sudo install -D -m 0755 build/cleanup-installed.sh "$root/usr/local/lib/frameos/cleanup-installed.sh"
   sudo install -d "$root/usr/local/bin" "$root/usr/share/applications" "$root/usr/share/icons/hicolor/scalable/apps"
@@ -45,10 +48,12 @@ if [[ ! -s "$cache/filesystem.squashfs" || ! -s "$cache/initrd" || ! -s "$cache/
 Type=Application
 Name=Welcome to FrameOS
 Exec=/usr/local/bin/frameos-welcome
-OnlyShowIn=GNOME;
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=0
 NoDisplay=true
 EOF
   sudo install -m 0644 build/installer.desktop "$root/usr/share/applications/frameos-installer.desktop"
+  sudo install -m 0644 build/welcome.desktop "$root/usr/share/applications/frameos-welcome.desktop"
   sudo install -m 0644 build/installer/branding/frameos/logo.svg "$root/usr/share/icons/hicolor/scalable/apps/frameos-installer.svg"
   sudo install -d "$root/usr/share/calamares/branding"
   sudo cp -a build/installer/branding/frameos "$root/usr/share/calamares/branding/"
