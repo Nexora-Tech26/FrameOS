@@ -1,2 +1,2 @@
-# Part 6 single-image installer preview
-One compressed filesystem at /casper/filesystem.squashfs serves both live and offline installation. Calamares runs a target-chroot cleanup after extraction to purge Casper and Calamares and remove live welcome launchers, before initramfs and GRUB configuration. No second squashfs. Do not use on important disks until VM tests pass. Secure Boot, encryption, dual boot and installed boot remain unverified. Actual size depends on successful CI build.
+# Native installer preview
+GTK4/libadwaita UI runs without root, privileged backend uses standard Linux tools. UEFI with Secure Boot disabled and blank non-removable disk >=25 GiB only. No dual boot, manual partitioning, BIOS, encryption or network page yet. Explicit disk confirmation; backend refuses existing signatures or mounted disks. Single SquashFS remains. Test only in a disposable VM. Calamares files remain in source history but are not installed. No runtime test performed.

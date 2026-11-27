@@ -33,12 +33,10 @@ if [[ ! -s "$cache/filesystem.squashfs" || ! -s "$cache/initrd" || ! -s "$cache/
   inroot apt-get install -y --no-install-recommends grub-pc-bin grub-efi-amd64-bin efibootmgr grub2-common cryptsetup-initramfs os-prober dosfstools e2fsprogs parted btrfs-progs
   sudo install -d "$root/etc/default/grub.d"
   printf 'GRUB_DISTRIBUTOR="FrameOS"\nGRUB_TIMEOUT=5\nGRUB_DISABLE_OS_PROBER=false\n' | sudo tee "$root/etc/default/grub.d/99-frameos.cfg" >/dev/null
-  inroot apt-get install -y calamares zenity xauth mokutil sudo
-  inroot test -x /usr/bin/calamares
+  inroot apt-get install -y zenity mokutil sudo squashfs-tools util-linux
   inroot /usr/bin/python3 -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk'
-  sudo install -d "$root/etc/calamares"
-  sudo cp -a build/installer/. "$root/etc/calamares/"
-  sudo install -D -m 0755 build/cleanup-installed.sh "$root/usr/local/lib/frameos/cleanup-installed.sh"
+  sudo install -D -m 0755 build/native-installer.py "$root/usr/local/bin/frameos-installer-ui"
+  sudo install -D -m 0755 build/install-target.py "$root/usr/local/lib/frameos/install-target.py"
   sudo install -d "$root/usr/local/bin" "$root/usr/share/applications" "$root/usr/share/icons/hicolor/scalable/apps"
   sudo install -m 0755 build/launch-installer.sh "$root/usr/local/bin/frameos-install"
   sudo install -m 0755 build/welcome-live.py "$root/usr/local/bin/frameos-welcome"
@@ -55,8 +53,6 @@ EOF
   sudo install -m 0644 build/installer.desktop "$root/usr/share/applications/frameos-installer.desktop"
   sudo install -m 0644 build/welcome.desktop "$root/usr/share/applications/frameos-welcome.desktop"
   sudo install -m 0644 build/installer/branding/frameos/logo.svg "$root/usr/share/icons/hicolor/scalable/apps/frameos-installer.svg"
-  sudo install -d "$root/usr/share/calamares/branding"
-  sudo cp -a build/installer/branding/frameos "$root/usr/share/calamares/branding/"
   sudo rm -f "$root/usr/sbin/policy-rc.d"
   inroot update-initramfs -u -k all
   kernel=$(sudo find "$root/boot" -maxdepth 1 -name 'vmlinuz-*' | sort -V | tail -1)
