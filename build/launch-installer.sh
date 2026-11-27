@@ -1,5 +1,8 @@
 #!/bin/bash
 set -e
+if [[ "${1:-}" == "--boot-mode" ]]; then
+  grep -Eq '(^| )frameos\.install=1( |$)' /proc/cmdline || exit 0
+fi
 if [[ ! -r /cdrom/install/target.squashfs ]]; then
   zenity --error --text="Installation media not found." || true
   exit 1
