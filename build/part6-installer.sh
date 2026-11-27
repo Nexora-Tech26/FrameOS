@@ -19,7 +19,7 @@ cleanup() {
   sudo rm -rf "$root" "$iso"
 }
 trap cleanup EXIT
-if [[ ! -s "$cache/filesystem.squashfs" || ! -s "$cache/target.squashfs" || ! -s "$cache/initrd" || ! -s "$cache/vmlinuz" ]]; then
+if [[ ! -s "$cache/filesystem.squashfs" || ! -s "$cache/initrd" || ! -s "$cache/vmlinuz" ]]; then
   sudo unsquashfs -no-progress -d "$root" "$desktop/filesystem.squashfs"
   sudo rm -f "$root/etc/resolv.conf"
   sudo cp -L /etc/resolv.conf "$root/etc/resolv.conf"
@@ -33,31 +33,9 @@ if [[ ! -s "$cache/filesystem.squashfs" || ! -s "$cache/target.squashfs" || ! -s
   inroot apt-get install -y --no-install-recommends grub-pc-bin grub-efi-amd64-bin efibootmgr grub2-common cryptsetup-initramfs os-prober dosfstools e2fsprogs parted btrfs-progs
   sudo install -d "$root/etc/default/grub.d"
   printf 'GRUB_DISTRIBUTOR="FrameOS"\nGRUB_TIMEOUT=5\nGRUB_DISABLE_OS_PROBER=false\n' | sudo tee "$root/etc/default/grub.d/99-frameos.cfg" >/dev/null
-  # Configure target image separately so installed machines never inherit live autologin or installer.
-  inroot apt-get purge -y casper
-  sudo rm -f "$root/etc/xdg/autostart/frameos-safe-desktop.desktop" "$root/usr/local/bin/frameos-safe-desktop"
-  sudo rm -f "$root/usr/sbin/policy-rc.d"
-  inroot update-initramfs -u -k all
-  inroot apt-get clean
-  sudo rm -rf "$root/var/lib/apt/lists/"*
-  sudo rm -f "$root/etc/resolv.conf"
-  sudo ln -s /run/systemd/resolve/stub-resolv.conf "$root/etc/resolv.conf"
-  sudo truncate -s 0 "$root/etc/machine-id"
-  for p in run sys proc dev; do sudo umount -R "$root/$p"; done
-  sudo mksquashfs "$root" "$cache/target.squashfs.tmp" -noappend -comp zstd -Xcompression-level 3 -b 256K -no-progress
-  sudo mv "$cache/target.squashfs.tmp" "$cache/target.squashfs"
-  # Add the live-only installer to a fresh copy of Part 5, not the installed target.
-  sudo rm -rf "$root"
-  sudo unsquashfs -no-progress -d "$root" "$desktop/filesystem.squashfs"
-  sudo rm -f "$root/etc/resolv.conf"
-  sudo cp -L /etc/resolv.conf "$root/etc/resolv.conf"
-  for p in dev proc sys; do sudo mount --rbind "/$p" "$root/$p"; sudo mount --make-rslave "$root/$p"; done
-  sudo mount -t tmpfs tmpfs "$root/run"
-  printf '#!/bin/sh\nexit 101\n' | sudo tee "$root/usr/sbin/policy-rc.d" >/dev/null
-  sudo chmod 755 "$root/usr/sbin/policy-rc.d"
-  inroot apt-get update
   inroot apt-get install -y calamares policykit-1-gnome || inroot apt-get install -y calamares
   sudo cp -a build/installer/. "$root/etc/calamares/"
+  sudo install -D -m 0755 build/cleanup-installed.sh "$root/usr/local/lib/frameos/cleanup-installed.sh"
   sudo install -d "$root/usr/local/bin" "$root/usr/share/applications" "$root/usr/share/icons/hicolor/scalable/apps"
   sudo install -m 0755 build/launch-installer.sh "$root/usr/local/bin/frameos-install"
   sudo install -m 0755 build/welcome-live.py "$root/usr/local/bin/frameos-welcome"
@@ -92,9 +70,8 @@ EOF
   sudo mv "$cache/filesystem.squashfs.tmp" "$cache/filesystem.squashfs"
   sudo chown -R "$(id -u):$(id -g)" "$cache"
 fi
-mkdir -p "$iso/casper" "$iso/boot/grub" "$iso/.disk" "$iso/install"
+mkdir -p "$iso/casper" "$iso/boot/grub" "$iso/.disk"
 for f in vmlinuz initrd filesystem.manifest filesystem.squashfs filesystem.size; do ln "$cache/$f" "$iso/casper/$f"; done
-ln "$cache/target.squashfs" "$iso/install/target.squashfs"
 printf 'FrameOS 1.0 Part 6 installer preview AMD64\n' > "$iso/.disk/info"
 cat > "$iso/boot/grub/grub.cfg" <<'EOF'
 set default=0

@@ -50,11 +50,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .build-cache/installer
-          key: frameos-installer-v1-${{ hashFiles('build/**') }}
+          key: frameos-installer-v2-${{ hashFiles('build/**') }}
       - name: Build FrameOS Part 6
         run: |
           bash -n build/part6-installer.sh
           bash -n build/launch-installer.sh
+          bash -n build/cleanup-installed.sh
           bash build/part6-installer.sh
       - name: Upload ISO and validation reports
         uses: actions/upload-artifact@v4
