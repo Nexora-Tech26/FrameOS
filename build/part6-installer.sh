@@ -60,12 +60,13 @@ if [[ ! -s "$cache/filesystem.squashfs" || ! -s "$cache/target.squashfs" || ! -s
   sudo cp -a build/installer/. "$root/etc/calamares/"
   sudo install -d "$root/usr/local/bin" "$root/usr/share/applications" "$root/usr/share/icons/hicolor/scalable/apps"
   sudo install -m 0755 build/launch-installer.sh "$root/usr/local/bin/frameos-install"
+  sudo install -m 0755 build/welcome-live.py "$root/usr/local/bin/frameos-welcome"
   sudo install -d "$root/etc/xdg/autostart"
-  sudo tee "$root/etc/xdg/autostart/frameos-install-mode.desktop" >/dev/null <<'EOF'
+  sudo tee "$root/etc/xdg/autostart/frameos-welcome.desktop" >/dev/null <<'EOF'
 [Desktop Entry]
 Type=Application
-Name=Install FrameOS
-Exec=/usr/local/bin/frameos-install --boot-mode
+Name=Welcome to FrameOS
+Exec=/usr/local/bin/frameos-welcome
 OnlyShowIn=GNOME;
 NoDisplay=true
 EOF
@@ -98,12 +99,8 @@ printf 'FrameOS 1.0 Part 6 installer preview AMD64\n' > "$iso/.disk/info"
 cat > "$iso/boot/grub/grub.cfg" <<'EOF'
 set default=0
 set timeout=5
-menuentry "Try FrameOS 1.0" {
+menuentry "FrameOS" {
  linux /casper/vmlinuz boot=casper username=frameos hostname=frameos ---
- initrd /casper/initrd
-}
-menuentry "Install FrameOS 1.0" {
- linux /casper/vmlinuz boot=casper username=frameos hostname=frameos frameos.install=1 ---
  initrd /casper/initrd
 }
 menuentry "FrameOS recovery (text console)" {
