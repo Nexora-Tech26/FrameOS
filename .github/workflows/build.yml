@@ -25,7 +25,7 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends debootstrap ubuntu-keyring gnupg squashfs-tools git curl sassc xorriso grub-pc-bin grub-efi-amd64-bin mtools
+          sudo apt-get install -y --no-install-recommends debootstrap ubuntu-keyring gnupg squashfs-tools git curl sassc libglib2.0-bin xorriso grub-pc-bin grub-efi-amd64-bin mtools
           sudo ln -sf gutsy /usr/share/debootstrap/scripts/stonking
       - name: Restore built system layer
         if: inputs.refresh != true
@@ -39,14 +39,21 @@ jobs:
         with:
           path: .build-cache/frameui
           key: frameui-v2-${{ hashFiles('build/part3-ui.sh', 'build/frame-gtk.css', 'build/frame-glass.css', 'build/minimal-iso.sh', 'build/part2-packages.txt', 'build/configure-live.sh', 'build/frameos-wallpaper.svg') }}
-      - name: Build FrameOS Part 3
+      - name: Restore desktop layer
+        if: inputs.refresh != true
+        uses: actions/cache@v4
+        with:
+          path: .build-cache/desktop
+          key: frameos-desktop-v1-${{ hashFiles('build/**') }}
+      - name: Build FrameOS Part 4
         run: |
-          bash -n build/part3-ui.sh
-          bash build/part3-ui.sh
+          bash -n build/part4-desktop.sh
+          python3 -m py_compile build/install-extensions.py
+          bash build/part4-desktop.sh
       - name: Upload ISO and validation reports
         uses: actions/upload-artifact@v4
         with:
-          name: FrameOS-1.0-part3-live-amd64
+          name: FrameOS-1.0-part4-live-amd64
           path: dist/
           compression-level: 0
           retention-days: 7
