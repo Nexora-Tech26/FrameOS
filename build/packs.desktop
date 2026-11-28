@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Install Selected Apps
+Comment=Download application packs selected in the installer
+Exec=/usr/local/bin/frameos-install-packs
+Icon=system-software-install
+Terminal=true
+Categories=System;

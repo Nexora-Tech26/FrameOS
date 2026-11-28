@@ -19,13 +19,13 @@ if [[ ! -s "$cache/filesystem.squashfs" ]]; then
   theme="$root/usr/share/themes/Frame-GTK-Dark/gnome-shell"
   test -s "$theme/gnome-shell.css"
   sudo cp -a "$theme/." "$root/usr/share/themes/Frame-Glass/gnome-shell/"
-  sudo tee -a "$root/usr/share/themes/Frame-Glass/gnome-shell/gnome-shell.css" < build/frame-glass.css >/dev/null
+  # Open Bar owns the panel; no additional panel background.
   # Import Orchis GTK4 resources for libadwaita rather than applying isolated CSS rules.
   gtk="$root/usr/share/themes/Frame-GTK-Dark/gtk-4.0"
   test -s "$gtk/gtk.css"
   sudo install -d "$root/etc/skel/.config/gtk-4.0"
   sudo cp -a "$gtk/." "$root/etc/skel/.config/gtk-4.0/"
-  sudo tee -a "$root/etc/skel/.config/gtk-4.0/gtk.css" < build/frame-gtk.css >/dev/null
+  # FrameUI rules are already appended in Part 3.
   sudo python3 build/install-extensions.py "$root" "$dist/extensions-report.json"
   sudo chown "$(id -u):$(id -g)" "$dist/extensions-report.json"
   sudo chroot "$root" dconf update

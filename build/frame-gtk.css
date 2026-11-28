@@ -1,8 +1,12 @@
 /* FrameUI: restrained rounded controls, dark navigation surfaces. */
-button { border-radius: 14px; min-height: 30px; padding: 5px 12px; }
+button { border-radius: 12px; }
 button.flat, button.image-button { border-radius: 12px; }
 entry, searchentry { border-radius: 12px; min-height: 34px; }
 .sidebar, placessidebar, navigation-sidebar { background-color: #24262b; color: #e6e8ed; }
 .sidebar row, placessidebar row, navigation-sidebar row { border-radius: 12px; margin: 3px 8px; padding: 6px 8px; min-height: 32px; }
 .sidebar row:selected, placessidebar row:selected, navigation-sidebar row:selected { background-color: #424650; color: #ffffff; }
 headerbar { border-radius: 14px 14px 0 0; }
+
+headerbar button.titlebutton, windowcontrols button { border-radius: 999px; min-width: 24px; min-height: 24px; padding: 2px; margin: 0 3px; border: 1px solid alpha(currentColor,0.12); background-image: none; background-color: alpha(currentColor,0.09); box-shadow: none; transition: background-color 160ms ease; }
+headerbar button.titlebutton:hover, windowcontrols button:hover { background-color: alpha(currentColor,0.22); }
+headerbar button.titlebutton.close:hover, windowcontrols button.close:hover { background-color: #bf4656; color: white; }

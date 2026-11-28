@@ -1,8 +1,8 @@
 componentName: frameos
 welcomeStyleCalamares: false
-welcomeExpandingLogo: true
+welcomeExpandingLogo: false
 windowExpanding: normal
-windowSize: 980px,620px
+windowSize: 1000px,650px
 windowPlacement: center
 sidebar: widget
 navigation: widget
@@ -22,9 +22,9 @@ images:
   productLogo: logo.svg
   productWelcome: logo.svg
 style:
-  SidebarBackground: "#24262b"
+  SidebarBackground: "#242730"
   SidebarText: "#e6e8ed"
   SidebarTextCurrent: "#ffffff"
-  SidebarBackgroundCurrent: "#465064"
+  SidebarBackgroundCurrent: "#43567b"
 slideshow: show.qml
 slideshowAPI: 2

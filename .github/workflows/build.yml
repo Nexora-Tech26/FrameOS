@@ -28,14 +28,14 @@ jobs:
         with:
           path: .build-cache/frameui
           key: frameos-resolute-ui-${{ hashFiles('build/minimal-iso.sh','build/part2-packages.txt','build/configure-live.sh','build/part3-ui.sh','build/frame-gtk.css') }}
-      - name: Build Part 7
+      - name: Build Part 8
         run: |
-          bash -n build/part7.sh build/launch-installer.sh
-          python3 -m py_compile build/modes.py build/install-extensions.py
-          bash build/part7.sh
+          bash -n build/part8.sh build/launch-installer.sh
+          python3 -m py_compile build/modes.py build/install-extensions.py build/select-packs.py build/install-packs.py
+          bash build/part8.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: FrameOS-part7-modular-preview
+          name: FrameOS-part8-preview
           path: dist/
           compression-level: 0
           if-no-files-found: error
