@@ -16,12 +16,12 @@ import pathlib, sys
 p = pathlib.Path(sys.argv[1])
 text = p.read_text()
 import re
-text, count = re.subn(r'(?m)^(\s*menuentry\s+)(["\'])([^"\'\n]*Ubuntu[^"\'\n]*)(\2)', lambda m: m[1]+m[2]+m[3].replace('Ubuntu','FrameOS (Ubuntu base)')+m[4], text)
+text, count = re.subn(r'(?m)^(\s*menuentry\s+)(["\'])([^"\'\n]*Ubuntu[^"\'\n]*)(\2)', lambda m: m[1]+m[2]+m[3].replace('Ubuntu','FrameOS')+m[4], text)
 if not count:
     raise SystemExit("Upstream GRUB menu layout changed; inspect before proceeding")
 p.write_text(text)
 PY
-printf 'FrameOS 1.0\nDevelopment build: Part 2 fast base (package integration pending)\nBase: Ubuntu 26.10 AMD64\n' > "$work/FRAMEOS.txt"
+printf 'FrameOS 1.0\nDevelopment build: Part 6.1 official installer baseline (desktop integration pending)\nBase: Ubuntu 24.04 LTS AMD64\n' > "$work/FRAMEOS.txt"
 # Update media checksum entries for modified boot configuration.
 xorriso -abort_on FAILURE -osirrox on -indev "$base" -extract /md5sum.txt "$work/md5sum.txt"
 chmod u+w "$work/md5sum.txt"
