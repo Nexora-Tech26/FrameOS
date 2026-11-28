@@ -45,11 +45,40 @@ for uuid,name,active in extensions:
     except Exception as e:
         if target.exists(): shutil.rmtree(target)
         results.append({'name':name,'uuid':uuid,'status':'unavailable','reason':str(e)})
+# Prefer official Open Bar; fall back to a pinned GNOME 50 community port.
+if version == '50' and 'openbar@neuromorph' not in enabled:
+    uuid='openbar@ddevel'
+    target=dest/uuid
+    try:
+        commit='3047287ac3443879a86d69d1e31a48a9f23e1a92'
+        blob=get('https://codeload.github.com/d-devel/openbar/zip/'+commit)
+        with zipfile.ZipFile(io.BytesIO(blob)) as z:
+            prefix='openbar-'+commit+'/'+uuid+'/'
+            for item in z.infolist():
+                if not item.filename.startswith(prefix): continue
+                name=item.filename[len(prefix):]
+                if not name: continue
+                path=pathlib.PurePosixPath(name)
+                if path.is_absolute() or '..' in path.parts or (item.external_attr>>16)&0o170000==0o120000: raise ValueError('unsafe archive')
+                destfile=target/path
+                if item.is_dir(): destfile.mkdir(parents=True,exist_ok=True)
+                else:
+                    destfile.parent.mkdir(parents=True,exist_ok=True)
+                    destfile.write_bytes(z.read(item))
+        meta=json.loads((target/'metadata.json').read_text())
+        if meta['uuid']!=uuid or version not in meta['shell-version']: raise ValueError('incompatible port')
+        subprocess.run(['glib-compile-schemas','--strict',str(target/'schemas')],check=True)
+        enabled.append(uuid)
+        results.append({'name':'Open Bar GNOME 50 port','uuid':uuid,'status':'enabled by default','commit':commit})
+    except Exception as e:
+        if target.exists(): shutil.rmtree(target)
+        results.append({'name':'Open Bar GNOME 50 port','uuid':uuid,'status':'unavailable','reason':str(e)})
 # Apply only settings supported by installed schemas. User Themes gets full Orchis Shell base.
 import xml.etree.ElementTree as ET
 settings={
 'dash-to-dock@micxgx.gmail.com':{'dock-position':"'BOTTOM'",'show-apps-at-top':'false','show-show-apps-button':'true','extend-height':'false','dash-max-icon-size':'40','dock-fixed':'true','autohide':'false','intellihide':'false','custom-theme-shrink':'true','show-trash':'false','show-mounts':'false'},
 'openbar@neuromorph':{'bartype':"'Trilands'"},
+'openbar@ddevel':{'bartype':"'Trilands'"},
 'user-theme@gnome-shell-extensions.gcampax.github.com':{'name':"'Frame-Glass'"}}
 # Native GNOME panel, clock, notification center and Quick Settings remain untouched.
 lines=['[org/gnome/shell]','disable-user-extensions=false','enabled-extensions='+repr(enabled),'','[org/gnome/desktop/interface]','enable-animations=false','']
@@ -63,7 +92,7 @@ for uuid,values in settings.items():
             selected={k:v for k,v in values.items() if k in keys}
             if selected: lines+=['['+path.strip('/')+']']+[k+'='+v for k,v in selected.items()]+['']
 (root/'etc/dconf/db/local.d/20-frame-desktop').write_text('\n'.join(lines))
-report.write_text(json.dumps({'gnome':version,'extensions':results,'panel':'Open Bar Trilands' if 'openbar@neuromorph' in enabled else 'Native GNOME panel','animations':False},indent=2))
+report.write_text(json.dumps({'gnome':version,'extensions':results,'panel':'Open Bar Trilands' if any(x in enabled for x in ('openbar@neuromorph','openbar@ddevel')) else 'Native GNOME panel','animations':False},indent=2))
 print(report.read_text())
 # Required desktop controls must not silently disappear.
 if 'dash-to-dock@micxgx.gmail.com' not in enabled: raise SystemExit('No compatible Dash to Dock release')

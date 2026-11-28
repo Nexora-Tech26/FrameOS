@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Mode
+Comment=Configure system mode
+Exec=/usr/local/bin/frameos-modes
+Icon=preferences-system-symbolic
+Categories=Settings;
+Terminal=false

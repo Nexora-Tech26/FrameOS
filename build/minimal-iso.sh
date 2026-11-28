@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 cd "$(dirname "$0")/.."
 export DEBIAN_FRONTEND=noninteractive
-suite=stonking
+suite=resolute
 mirror=https://archive.ubuntu.com/ubuntu
 cache="$PWD/.build-cache/minimal"
 root="$PWD/.build-root"
@@ -36,7 +36,7 @@ EOF
   # Prevent Ubuntu-specific desktop extensions, metapackages and themes from entering the base.
   sudo mkdir -p "$root/etc/apt/preferences.d"
   sudo tee "$root/etc/apt/preferences.d/frameos-build" >/dev/null <<'EOF'
-Package: ubuntu-desktop ubuntu-desktop-minimal ubuntu-session ubuntu-settings ubuntu-dock gnome-shell-extension-ubuntu-dock gnome-shell-extension-ubuntu-tiling-assistant yaru-theme-* thunderbird ubuntu-welcome
+Package: ubuntu-desktop ubuntu-desktop-minimal ubuntu-session ubuntu-settings ubuntu-dock gnome-shell-extension-ubuntu-dock gnome-shell-extension-ubuntu-tiling-assistant thunderbird ubuntu-welcome
 Pin: version *
 Pin-Priority: -1
 EOF
@@ -84,7 +84,7 @@ EOF
   sudo cp "$kernel" "$cache/vmlinuz"
   sudo cp "$root/boot/initrd.img-$version" "$cache/initrd"
   inroot dpkg-query -W -f='${Package} ${Version}\n' > "$cache/filesystem.manifest"
-  if grep -Eq '^(ubuntu-desktop(-minimal)?|ubuntu-session|gnome-shell-extension-ubuntu-dock|gnome-shell-extension-ubuntu-tiling-assistant|yaru-theme-[^ ]+|thunderbird) ' "$cache/filesystem.manifest"; then
+  if grep -Eq '^(ubuntu-desktop(-minimal)?|ubuntu-session|gnome-shell-extension-ubuntu-dock|gnome-shell-extension-ubuntu-tiling-assistant|thunderbird) ' "$cache/filesystem.manifest"; then
     echo 'Unexpected Ubuntu desktop package present' >&2; exit 1
   fi
   inroot apt-get clean

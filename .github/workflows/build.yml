@@ -18,14 +18,24 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y xorriso ubuntu-keyring gnupg curl
-      - name: Build official installer baseline
+          sudo apt-get install -y xorriso ubuntu-keyring gnupg curl debootstrap squashfs-tools git sassc libglib2.0-bin grub-pc-bin grub-efi-amd64-bin mtools
+          sudo ln -sf gutsy /usr/share/debootstrap/scripts/resolute
+      - uses: actions/cache@v4
+        with:
+          path: .build-cache/minimal
+          key: frameos-resolute-base-${{ hashFiles('build/minimal-iso.sh','build/part2-packages.txt','build/configure-live.sh') }}
+      - uses: actions/cache@v4
+        with:
+          path: .build-cache/frameui
+          key: frameos-resolute-ui-${{ hashFiles('build/minimal-iso.sh','build/part2-packages.txt','build/configure-live.sh','build/part3-ui.sh','build/frame-gtk.css') }}
+      - name: Build Part 7
         run: |
-          bash -n build/part61-baseline.sh
-          bash build/part61-baseline.sh
+          bash -n build/part7.sh build/launch-installer.sh
+          python3 -m py_compile build/modes.py build/install-extensions.py
+          bash build/part7.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: FrameOS-part6.1-installer-baseline
+          name: FrameOS-part7-modular-preview
           path: dist/
           compression-level: 0
           if-no-files-found: error
