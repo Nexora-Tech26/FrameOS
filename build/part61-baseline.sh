@@ -8,7 +8,7 @@ work=$(mktemp -d)
 trap 'sudo rm -rf "$work"' EXIT
 curl -fsSL --retry 3 "$url/SHA256SUMS" -o "$work/SHA256SUMS"
 curl -fsSL --retry 3 "$url/SHA256SUMS.gpg" -o "$work/SHA256SUMS.gpg"
-gpgv --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg --keyring /usr/share/keyrings/ubuntu-cdimage-keyring.gpg "$work/SHA256SUMS.gpg" "$work/SHA256SUMS"
+gpgv --keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg "$work/SHA256SUMS.gpg" "$work/SHA256SUMS"
 grep -F " $(basename "$base")" "$work/SHA256SUMS" > "$work/expected" || grep -F "*$(basename "$base")" "$work/SHA256SUMS" > "$work/expected"
 if [[ ! -s "$base" ]]; then curl -fL --retry 3 "$url/$(basename "$base")" -o "$base.tmp"; mv "$base.tmp" "$base"; fi
 (cd "$(dirname "$base")"; sha256sum -c "$work/expected")
